@@ -19,6 +19,7 @@ let kAutoCapitalization = "kAutoCapitalization"
 let kPeriodShortcut = "kPeriodShortcut"
 let kKeyboardClicks = "kKeyboardClicks"
 let kSmallLowercase = "kSmallLowercase"
+let kDeleteWholeWords = "kDeleteWholeWords"
 
 class KeyboardViewController: UIInputViewController {
     
@@ -98,7 +99,8 @@ class KeyboardViewController: UIInputViewController {
             kAutoCapitalization: true,
             kPeriodShortcut: true,
             kKeyboardClicks: false,
-            kSmallLowercase: false
+            kSmallLowercase: false,
+            kDeleteWholeWords: false
         ])
         
         self.keyboard = defaultKeyboard()
@@ -531,7 +533,7 @@ class KeyboardViewController: UIInputViewController {
     
     func backspaceDown(sender: KeyboardKey) {
         self.cancelBackspaceTimers()
-        
+      
         if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
             textDocumentProxy.deleteBackward()
         }
@@ -553,8 +555,23 @@ class KeyboardViewController: UIInputViewController {
     func backspaceRepeatCallback() {
         self.playKeySound()
         
-        if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-            textDocumentProxy.deleteBackward()
+        if NSUserDefaults.standardUserDefaults().boolForKey(kDeleteWholeWords) {
+            let indexRange = self.textDocumentProxy.documentContextBeforeInput?.rangeOfString(" ", options: NSStringCompareOptions.BackwardsSearch)
+            var length = indexRange?.first
+            if length == nil {
+                length = self.textDocumentProxy.documentContextBeforeInput?.startIndex
+            }
+while
+    length?.distanceTo((self.textDocumentProxy.documentContextBeforeInput?.endIndex)!)
+    > 0{
+        self.textDocumentProxy.deleteBackward()
+        if self.textDocumentProxy.documentContextBeforeInput == nil{
+            break
+        }
+            }
+        }
+        else {
+           self.textDocumentProxy.deleteBackward()
         }
         self.setCapsIfNeeded()
     }
