@@ -9,6 +9,8 @@
 func defaultKeyboard() -> Keyboard {
     let defaultKeyboard = Keyboard()
     
+    defaultKeyboard.wordSeparators = [" ",",",".","?","!",";",":"]
+    
     for key in ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"] {
         let keyModel = Key(.Character)
         keyModel.setLetter(key)

@@ -552,26 +552,45 @@ class KeyboardViewController: UIInputViewController {
         self.backspaceRepeatTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceRepeat, target: self, selector: Selector("backspaceRepeatCallback"), userInfo: nil, repeats: true)
     }
     
+    func deleteWord(){
+        if (self.textDocumentProxy.documentContextBeforeInput == nil){
+            return
+        }
+        let endIndex = self.textDocumentProxy.documentContextBeforeInput?.endIndex
+        var indexRange : String.Index? = nil
+        for delimiter in keyboard.wordSeparators{
+            let newIndex = self.textDocumentProxy.documentContextBeforeInput?.rangeOfString(delimiter, options: NSStringCompareOptions.BackwardsSearch)
+            if (newIndex != nil){
+                let first = newIndex?.first!
+                if (indexRange == nil) {
+                    indexRange = first
+                }
+                if (first!.distanceTo(endIndex!) < indexRange!.distanceTo(endIndex!)){
+                    indexRange = (newIndex?.first)!
+                }
+            }
+        }
+       
+        if indexRange == nil{
+            indexRange = self.textDocumentProxy.documentContextBeforeInput?.startIndex
+        }
+      
+        while indexRange!.distanceTo((self.textDocumentProxy.documentContextBeforeInput?.endIndex)!) > 0 {
+            self.textDocumentProxy.deleteBackward()
+            if self.textDocumentProxy.documentContextBeforeInput == nil{
+                break
+            }
+        }
+    }
+    
     func backspaceRepeatCallback() {
         self.playKeySound()
         
         if NSUserDefaults.standardUserDefaults().boolForKey(kDeleteWholeWords) {
-            let indexRange = self.textDocumentProxy.documentContextBeforeInput?.rangeOfString(" ", options: NSStringCompareOptions.BackwardsSearch)
-            var length = indexRange?.first
-            if length == nil {
-                length = self.textDocumentProxy.documentContextBeforeInput?.startIndex
-            }
-while
-    length?.distanceTo((self.textDocumentProxy.documentContextBeforeInput?.endIndex)!)
-    > 0{
-        self.textDocumentProxy.deleteBackward()
-        if self.textDocumentProxy.documentContextBeforeInput == nil{
-            break
-        }
-            }
+            self.deleteWord();
         }
         else {
-           self.textDocumentProxy.deleteBackward()
+            self.textDocumentProxy.deleteBackward()
         }
         self.setCapsIfNeeded()
     }

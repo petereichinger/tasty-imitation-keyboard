@@ -29,9 +29,10 @@ enum ShiftState {
 
 class Keyboard {
     var pages: [Page]
-    
+    var wordSeparators: [String]
     init() {
         self.pages = []
+        self.wordSeparators = []
     }
     
     func addKey(key: Key, row: Int, page: Int) {
