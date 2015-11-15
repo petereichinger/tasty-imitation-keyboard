@@ -25,6 +25,7 @@ class KeyboardViewController: UIInputViewController {
     
     let backspaceDelay: NSTimeInterval = 0.5
     let backspaceRepeat: NSTimeInterval = 0.07
+    let backspaceRepeatWords:NSTimeInterval = 0.35
     
     var keyboard: Keyboard!
     var forwardingView: ForwardingView!
@@ -534,9 +535,8 @@ class KeyboardViewController: UIInputViewController {
     func backspaceDown(sender: KeyboardKey) {
         self.cancelBackspaceTimers()
       
-        if let textDocumentProxy = self.textDocumentProxy as? UIKeyInput {
-            textDocumentProxy.deleteBackward()
-        }
+        textDocumentProxy.deleteBackward()
+        
         self.setCapsIfNeeded()
         
         // trigger for subsequent deletes
@@ -549,7 +549,14 @@ class KeyboardViewController: UIInputViewController {
     
     func backspaceDelayCallback() {
         self.backspaceDelayTimer = nil
-        self.backspaceRepeatTimer = NSTimer.scheduledTimerWithTimeInterval(backspaceRepeat, target: self, selector: Selector("backspaceRepeatCallback"), userInfo: nil, repeats: true)
+        
+        var timer = backspaceRepeat
+        
+        if NSUserDefaults.standardUserDefaults().boolForKey(kDeleteWholeWords){
+            timer = backspaceRepeatWords
+        }
+        
+        self.backspaceRepeatTimer = NSTimer.scheduledTimerWithTimeInterval(timer, target: self, selector: Selector("backspaceRepeatCallback"), userInfo: nil, repeats: true)
     }
     
     func deleteWord(){
